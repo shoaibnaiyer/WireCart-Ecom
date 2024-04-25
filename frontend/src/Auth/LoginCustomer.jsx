@@ -1,15 +1,15 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Box, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem, Alert } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../assets/marsRover.jpg';
 
-function Login() {
+function LoginCustomer() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        role: 'Customer'
+        role: 'Customer' // Default role set to Customer
     });
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -18,25 +18,12 @@ function Login() {
     useEffect(() => {
         function isLoggedIn() {
             const userData = localStorage.getItem("userData");
-            console.log("Here in use effect");
             if (userData) {
                 navigate("/home");
             }
         }
         isLoggedIn();
-        fetchUsers();
     }, [navigate]);
-
-    const fetchUsers = () => {
-        axios
-            .get('http://localhost:3001/register')
-            .then((res) => {
-                console.log(res.data);
-            })
-            .catch((error) => {
-                console.log('Error fetching users:', error);
-            });
-    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -58,20 +45,7 @@ function Login() {
             // Dispatch a custom event here
             window.dispatchEvent(new Event('storage'));
 
-            const { role } = formData;
-            switch (role) {
-                case 'Customer':
-                    navigate('/customer-dashboard');
-                    break;
-                case 'Seller':
-                    navigate('/seller-dashboard');
-                    break;
-                case 'Admin':
-                    navigate('/admin-dashboard');
-                    break;
-                default:
-                    navigate('/login');
-            }
+            navigate('/customer-dashboard'); // Directly navigate to customer dashboard
         } catch (error) {
             console.error("Error logging in", error)
             setErrorMessage(error.response.data.message || 'An error occurred during login');
@@ -125,21 +99,6 @@ function Login() {
                             value={formData.password}
                             onChange={handleChange}
                         />
-                        <FormControl fullWidth margin="dense">
-                            <InputLabel id="role-label">Login As</InputLabel>
-                            <Select
-                                labelId="role-label"
-                                id="role"
-                                value={formData.role}
-                                label="Login As"
-                                name="role"
-                                onChange={handleChange}
-                            >
-                                <MenuItem value="Customer">Customer</MenuItem>
-                                <MenuItem value="Seller">Seller</MenuItem>
-                                <MenuItem value="Admin">Admin</MenuItem>
-                            </Select>
-                        </FormControl>
                         <Button
                             type="submit"
                             fullWidth
@@ -149,7 +108,8 @@ function Login() {
                             Login
                         </Button>
                         <Typography variant="body2" align="center">
-                            New User? <Link to="/register">Click here to Register</Link>
+                           <div>New User? <Link to="/register1">Click here to Register</Link></div>
+                           <div>Admin? <Link to="/login-admin">Click here to go to Admin Login</Link></div>
                         </Typography>
                     </Box>
                 </Box>
@@ -158,4 +118,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default LoginCustomer;

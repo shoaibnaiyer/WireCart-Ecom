@@ -2,18 +2,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Container, Box, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Container, Box, Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/marsRover.jpg';
 
-function Register() {
+function Register1() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         address: '',
         mobile: '',
         password: '',
-        role: 'Customer',
+        role: 'Customer', // Default role set to Customer
     });
 
     const navigate = useNavigate();
@@ -49,10 +49,10 @@ function Register() {
                     address: '',
                     mobile: '',
                     password: '',
-                    role: 'Customer',
+                    role: 'Customer', // Reset role to Customer for next registration
                 });
                 fetchUsers();
-                navigate('/login');
+                navigate('/login-customer');
             })
             .catch((error) => {
                 console.log('Unable to register user');
@@ -130,26 +130,11 @@ function Register() {
                             value={formData.password}
                             onChange={handleChange}
                         />
-                        <FormControl fullWidth margin="dense">
-                            <InputLabel id="role-label">User Type</InputLabel>
-                            <Select
-                                labelId="role-label"
-                                id="role"
-                                value={formData.role}
-                                label="User Type"
-                                name="role"
-                                onChange={handleChange}
-                            >
-                                <MenuItem value="Customer">Customer</MenuItem>
-                                <MenuItem value="Seller">Seller</MenuItem>
-                                <MenuItem value="Admin">Admin</MenuItem>
-                            </Select>
-                        </FormControl>
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, mb: 2 }}>
                             Register
                         </Button>
                         <Typography variant="body2" align="center">
-                            Already have an account? <Link to="/login">Login here</Link>
+                            Already have an account? <Link to="/login-customer">Login here</Link>
                         </Typography>
                     </Box>
                 </Box>
@@ -158,4 +143,4 @@ function Register() {
     );
 }
 
-export default Register;
+export default Register1;

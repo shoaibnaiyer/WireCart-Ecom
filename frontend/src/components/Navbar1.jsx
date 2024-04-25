@@ -40,7 +40,7 @@ function Navbar1() {
         localStorage.removeItem('userData');
         setIsUserSignedIn(false);
         setUserData(null);
-        navigate('/login');
+        navigate('/login-customer');
     };
 
     const handleMenuOpen = (event) => {
@@ -90,12 +90,12 @@ function Navbar1() {
       ) : (
         <MenuItem key="admin-dashboard" onClick={handleMenuClose} component={Link} to="/admin-dashboard">Admin Dashboard</MenuItem>
       ),
-      <MenuItem key="sign-out" onClick={() => { handleMenuClose(); handleSignOut(); }} component={Link} to="/login">Sign Out</MenuItem>
+      <MenuItem key="sign-out" onClick={() => { handleMenuClose(); handleSignOut(); }} component={Link} to="/login-customer">Sign Out</MenuItem>
     ]
   ) : (
     [
-      <MenuItem key="login" onClick={handleMenuClose} component={Link} to="/login">Login</MenuItem>,
-      <MenuItem key="register" onClick={handleMenuClose} component={Link} to="/register">Register</MenuItem>
+      <MenuItem key="login" onClick={handleMenuClose} component={Link} to="/login-customer">Login</MenuItem>,
+      <MenuItem key="register" onClick={handleMenuClose} component={Link} to="/register1">Register</MenuItem>
     ]
   )}
 </Menu>
@@ -115,8 +115,8 @@ function Navbar1() {
                         </>
                     ) : (
                         <>
-                            <Button color="inherit" component={Link} to="/login">Login</Button>
-                            <Button color="inherit" component={Link} to="/register">Register</Button>
+                            <Button color="inherit" component={Link} to="/login-customer">Login</Button>
+                            <Button color="inherit" component={Link} to="/register1">Register</Button>
                         </>
                     )}
                 </Hidden>

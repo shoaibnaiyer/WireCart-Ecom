@@ -1,9 +1,14 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 // import Navbar from './components/Navbar'
+import { Box } from '@mui/material'
 import { useEffect } from 'react'
 import Navbar1 from './components/Navbar1'
+import Footer from './components/Footer'
 import Register from './Auth/Register'
+import Register1 from './Auth/Register1'
 import Login from './Auth/Login'
+import LoginCustomer from './Auth/LoginCustomer'
+import LoginAdmin from './Auth/LoginAdmin'
 import Home from './pages/Home'
 import DashboardAdmin from './pages/Admin/DashboardAdmin'
 import DashboardCustomer from './pages/Customer/DashboardCustomer'
@@ -22,16 +27,6 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // const [load, setLoad] = useState(false);
-
-  // useEffect(() => {
-  //   // Reload the app only when the route changes to a certain path
-  //   if (location.pathname === '/example') {
-  //     window.location.reload();
-  //   }
-  //   setLoad(()=>!load)
-  // }, [load, location.pathname]);
-
   useEffect(() => {
     // Redirect to a specific route if the condition is met
     if (location.pathname === '/') {
@@ -41,15 +36,20 @@ function App() {
 
   return (
     // <BrowserRouter>
-    <div className='main-container'>
+    <Box display="flex" flexDirection="column" minHeight="100vh">
+    {/* <div className='main-container'> */}
       <Navbar1 />
       {/* <Navbar /> */}
+      <Box flexGrow={1}>
       <Routes>
         {!isUserSignedIn && (
           <>
             <Route path="/" element={<Home />}></Route>
             <Route path="/register" element={<Register />}></Route>
+            <Route path="/register1" element={<Register1 />}></Route>
             <Route path="/login" element={<Login />}></Route>
+            <Route path="/login-customer" element={<LoginCustomer />}></Route>
+            <Route path="/login-admin" element={<LoginAdmin />}></Route>
           </>
         )}
         {isUserSignedIn && (
@@ -66,7 +66,10 @@ function App() {
           </>
         )}
       </Routes>
-    </div>
+      </Box>
+      <Footer />
+      </Box >
+    // </div >
     // </BrowserRouter>
   )
 }

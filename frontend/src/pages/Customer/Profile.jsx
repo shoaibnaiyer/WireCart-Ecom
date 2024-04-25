@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {
@@ -163,7 +164,7 @@ function Profile() {
               fullWidth
               margin="normal"
             />
-            <Button variant="contained" onClick={handleUpdateUser}>Update User</Button>
+            <Button variant="contained" onClick={handleUpdateUser}>Save Updated Info</Button>
           </Box>
         </Modal>
       </Container>
