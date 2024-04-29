@@ -1,3 +1,19 @@
+//Code for MVC
+
+// import app from "./app.js";
+// import mongoose from "./config/db.js";
+// import dotenv from "dotenv";
+
+// dotenv.config({ path: "../.env" });
+
+// const port = process.env.PORT || 3001;
+
+// app.listen(port, () => {
+//   console.log(`Server is running on port ${port}`);
+// });
+
+
+
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
