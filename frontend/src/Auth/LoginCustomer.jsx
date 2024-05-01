@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import backgroundImage from '../assets/marsRover.jpg';
+import backgroundImage from '../assets/AI Cart.png';
 
 function LoginCustomer() {
     const [formData, setFormData] = useState({

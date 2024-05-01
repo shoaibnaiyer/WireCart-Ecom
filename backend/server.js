@@ -18,6 +18,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import multer from "multer";
 import bodyParser from "body-parser";
 import User from "./models/userModel.js";
 import Product from "./models/productModel.js";
@@ -46,6 +47,19 @@ mongoose
   .catch((error) => {
     console.log("Unable to connect to the Server");
   });
+
+
+  // Multer configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Specify the directory where images will be stored
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname); // Rename the file to avoid conflicts
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // Registering Users
 app.post("/register", async (req, res) => {
@@ -178,6 +192,42 @@ app.post("/products", async (req, res) => {
   });
 
   try {
+    // If ratings are provided, calculate the average rating
+    if (req.body.ratings && req.body.ratings.length > 0) {
+      const totalRatings = req.body.ratings.reduce(
+        (total, rating) => total + rating.rating,
+        0
+      );
+      product.averageRating = Number(
+        (totalRatings / req.body.ratings.length).toFixed(2)
+      );
+    }
+
+    const newProduct = await product.save();
+    res.status(201).json({ newProduct, message: "Product added successfully" });
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Add a new product with image upload
+app.post("/products", upload.array('images', 5), async (req, res) => {
+  try {
+    // Create an array of image URLs from uploaded files
+    const images = req.files.map(file => file.path);
+
+    const product = new Product({
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      category: req.body.category,
+      brand: req.body.brand,
+      quantity: req.body.quantity,
+      images: images, // Use the array of image URLs
+      ratings: req.body.ratings,
+    });
+
     // If ratings are provided, calculate the average rating
     if (req.body.ratings && req.body.ratings.length > 0) {
       const totalRatings = req.body.ratings.reduce(
