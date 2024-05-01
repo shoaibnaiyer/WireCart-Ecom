@@ -18,7 +18,6 @@ import Inventory from './pages/Admin/Inventory'
 import CustomerList from './pages/Admin/CustomerList'
 import OrderList from './pages/Admin/OrderList'
 import Cart from './pages/Customer/Cart'
-import Checkout from './pages/Customer/Checkout'
 import Orders from './pages/Orders'
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 
@@ -67,7 +66,6 @@ function App() {
             <Route path="/customer-list" element={<CustomerList />}></Route>
             <Route path="/order-list" element={<OrderList />}></Route>
             <Route path="/cart" element={<Cart />}></Route>
-            <Route path="/checkout" element={<Checkout />}></Route>
             <Route path="/orders" element={<Orders />}></Route>
           </>
         )}

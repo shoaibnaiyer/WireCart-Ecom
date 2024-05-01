@@ -553,19 +553,31 @@ app.post("/users/:userId/orders", async (req, res) => {
 app.get("/users/:userId/orders", async (req, res) => {
   try {
     const userId = req.params.userId;
-    const orders = await Order.find({ user: userId });
+    const orders = await Order.find({ user: userId }).populate('user');
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// Get all orders for all users with user info
+app.get("/orders", async (req, res) => {
+  try {
+    const orders = await Order.find().populate('user');
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
 // Get a single order by ID for a specific user
 app.get("/users/:userId/orders/:id", async (req, res) => {
   try {
     const userId = req.params.userId;
     const orderId = req.params.id;
-    const order = await Order.findOne({ _id: orderId, user: userId });
+    const order = await Order.findOne({ _id: orderId, user: userId }).populate('user').populate('products.product');
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -580,17 +592,54 @@ app.put("/users/:userId/orders/:id", async (req, res) => {
   try {
     const userId = req.params.userId;
     const orderId = req.params.id;
-    const order = await Order.findOneAndUpdate({ _id: orderId, user: userId }, req.body, {
+
+    // Extract the fields to update from the request body
+    const { expectedDeliveryDate, deliveryDate, status } = req.body;
+
+    // Prepare the update object with only the fields provided
+    const updateObject = {};
+    if (expectedDeliveryDate) updateObject.expectedDeliveryDate = expectedDeliveryDate;
+    if (deliveryDate) updateObject.deliveryDate = deliveryDate;
+    if (status) updateObject.status = status;
+
+    // Validate if the status is included in the enum values
+    if (status && !["Pending", "Processing", "Shipped", "Delivered", "Cancelled"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    // Update the order document
+    const order = await Order.findOneAndUpdate({ _id: orderId, user: userId }, updateObject, {
       new: true,
     });
+
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
+
     res.json(order);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+
+// // Update an order for a specific user
+// app.put("/users/:userId/orders/:id", async (req, res) => {
+//   try {
+//     const userId = req.params.userId;
+//     const orderId = req.params.id;
+//     const order = await Order.findOneAndUpdate({ _id: orderId, user: userId }, req.body, {
+//       new: true,
+//     });
+//     if (!order) {
+//       return res.status(404).json({ message: "Order not found" });
+//     }
+//     res.json(order);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 // Delete an order for a specific user
 app.delete("/users/:userId/orders/:id", async (req, res) => {
@@ -606,57 +655,3 @@ app.delete("/users/:userId/orders/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-
-
-
-
-
-
-//old
-// Order routes
-app.get("/order/:userId", async (req, res) => {
-  try {
-    const orders = await Order.find({ user: req.params.userId });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-app.post("/order/:userId", async (req, res) => {
-  const newOrder = new Order({
-    user: req.params.userId,
-    products: req.body.products,
-    totalAmount: req.body.totalAmount,
-  });
-
-  try {
-    const savedOrder = await newOrder.save();
-    res.status(201).json(savedOrder);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-app.put("/order/:orderId", async (req, res) => {
-  try {
-    const updatedOrder = await Order.updateOne(
-      { _id: req.params.orderId },
-      { $set: { status: req.body.status } }
-    );
-    res.json(updatedOrder);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-app.delete("/order/:orderId", async (req, res) => {
-  try {
-    const removedOrder = await Order.remove({ _id: req.params.orderId });
-    res.json(removedOrder);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
