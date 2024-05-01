@@ -1,6 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import {generateToken} from "../middlewares/authMiddleware.js"
+import { generateToken } from "../middlewares/authMiddleware.js"
 
 const secretKey = process.env.SECRET_KEY;
 

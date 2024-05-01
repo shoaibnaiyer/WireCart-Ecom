@@ -12,6 +12,28 @@ function Home() {
       .catch(err => console.error(err));
   }, []);
 
+  
+  const addToCart = async (productId) => {
+    const userData = JSON.parse(localStorage.getItem('userData')); // Retrieve user data from localStorage
+    if (!userData || !userData.userId) {
+      throw new Error('User ID not found');
+    }
+  
+   await axios.post(`http://localhost:3001/carts/add-product`, { userId: userData.userId, productId, quantity: 1 }, {
+      headers: {
+        Authorization: `Bearer ${userData.token}`,
+      }
+    })    
+    .then(res => {
+      console.log('Product added to cart:', res.data);
+    })
+    .catch(err => {
+      console.error('Error adding product to cart:', err);
+    });
+  };
+  
+  
+
   return (
     <>
       <Container maxWidth="lg">
@@ -32,8 +54,8 @@ function Home() {
                   <Typography variant="body1">Average Rating: {product.averageRating}</Typography>
                 </CardContent>
                 <CardActions>
-                <Button variant="outlined" style={{ marginTop: '10px' }}>Add to Cart</Button>
-                <Button variant="contained" style={{ marginTop: '10px' }}>View Details</Button>
+                  <Button variant="outlined" style={{ marginTop: '10px' }} onClick={() => addToCart(product._id)}>Add to Cart</Button>
+                  <Button variant="contained" style={{ marginTop: '10px' }}>View Details</Button>
                 </CardActions>
               </Card>
             </Grid>
