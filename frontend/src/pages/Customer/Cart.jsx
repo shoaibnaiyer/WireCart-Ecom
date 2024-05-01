@@ -21,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TablePagination from '@mui/material/TablePagination';
+import { useNavigate } from 'react-router-dom';
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
@@ -29,6 +30,8 @@ function Cart() {
   const [userDetails, setUserDetails] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState('');
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchCartItems() {
@@ -137,6 +140,9 @@ function Cart() {
         return;
       }
 
+      const currentDate = new Date();
+      const expectedDeliveryDate = new Date(currentDate.setDate(currentDate.getDate() + 7))
+
       const orderData = {
         user: userData.userId,
         products: cartItems.map(item => ({
@@ -144,7 +150,8 @@ function Cart() {
           quantity: item.quantity
         })),
         totalAmount: cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0),
-        deliveryAddress: deliveryAddress
+        deliveryAddress: deliveryAddress,
+        expectedDeliveryDate: expectedDeliveryDate.toISOString().split('T')[0]
       };
 
       await axios.post(`http://localhost:3001/users/${userData.userId}/orders`, orderData, {
@@ -153,8 +160,18 @@ function Cart() {
         }
       });
 
+      // Clear the cart items from the database
+      await axios.delete(`http://localhost:3001/carts/delete-all-items`, {
+        data: { userId: userData.userId },
+        headers: {
+          Authorization: `Bearer ${userData.token}`
+        }
+      });
+
       setCartItems([]);
       setOpenModal(false);
+
+      navigate('/orders');
 
       console.log('Order placed successfully');
     } catch (error) {
@@ -238,7 +255,7 @@ function Cart() {
         p={2}
       >
         <Typography variant="h6">
-          Total Cart Amount: <b>{cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0)}</b>
+          Total Cart Amount: <b>₹{cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0)}</b>
         </Typography>
         <Button variant="contained" color="primary" style={{ marginTop: '10px', marginBottom: '10px' }} onClick={handleCheckout}>
           Checkout

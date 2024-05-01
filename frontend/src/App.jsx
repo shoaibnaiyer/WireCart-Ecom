@@ -18,7 +18,7 @@ import Inventory from './pages/Admin/Inventory'
 import CustomerList from './pages/Admin/CustomerList'
 import OrderList from './pages/Admin/OrderList'
 import Cart from './pages/Customer/Cart'
-import Orders from './pages/Orders'
+import Orders from './pages/Customer/Orders'
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 
 // import './App.css'

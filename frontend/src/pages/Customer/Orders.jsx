@@ -12,34 +12,38 @@ import {
   TableRow,
   Paper,
   TablePagination,
-  Select,
-  MenuItem,
   Modal,
   Box,
-  Button // Import Button from Material-UI
+  Button
 } from '@mui/material';
 
-function OrderList() {
+function Orders() {
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
-  // Function to fetch orders
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
   const fetchOrders = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/orders`);
+      // Fetch orders for the logged-in user
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData || !userData.userId) {
+        console.error('User ID not found in local storage');
+        return;
+      }
+
+      const response = await axios.get(`http://localhost:3001/users/${userData.userId}/orders`);
       setOrders(response.data || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
       setOrders([]);
     }
   };
-
-  useEffect(() => {
-    fetchOrders();
-  }, []);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -50,34 +54,15 @@ function OrderList() {
     setPage(0);
   };
 
-  const handleUpdateOrder = async (orderId, updateData) => {
+  const handleViewDetails = async (orderId) => {
     try {
-      const orderToUpdate = orders.find(order => order._id === orderId);
-      if (!orderToUpdate) {
-        console.error('Order not found');
+      const userData = JSON.parse(localStorage.getItem('userData'));
+      if (!userData || !userData.userId) {
+        console.error('User ID not found in local storage');
         return;
       }
 
-      // Update delivery date to current date if status is "Delivered"
-      if (updateData.status === "Delivered") {
-        updateData.deliveryDate = new Date().toISOString().split('T')[0];
-      }
-
-      const userId = orderToUpdate.user._id;
-      await axios.put(`http://localhost:3001/users/${userId}/orders/${orderId}`, updateData);
-      // Refetch orders after updating
-      fetchOrders();
-      console.log("Successfully Updated");
-    } catch (error) {
-      console.error('Error updating order:', error);
-    }
-  };
-
-
-  const handleViewDetails = async (orderId) => {
-    try {
-      const userId = orders.find(order => order._id === orderId).user._id;
-      const response = await axios.get(`http://localhost:3001/users/${userId}/orders/${orderId}`);
+      const response = await axios.get(`http://localhost:3001/users/${userData.userId}/orders/${orderId}`);
       setSelectedOrder(response.data);
       setOpenModal(true);
     } catch (error) {
@@ -93,7 +78,7 @@ function OrderList() {
     <>
       <Container>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h2" gutterBottom style={{ marginTop: '20px' }}>Order List</Typography>
+          <Typography variant="h2" gutterBottom style={{ marginTop: '20px' }}>Order History</Typography>
         </Box>
         <Paper>
           <TableContainer>
@@ -102,8 +87,9 @@ function OrderList() {
                 <TableRow>
                   <TableCell><b>S. No.</b></TableCell>
                   <TableCell><b>Order ID</b></TableCell>
-                  <TableCell><b>User ID</b></TableCell>
+                  {/* <TableCell><b>User ID</b></TableCell> */}
                   <TableCell><b>User Name</b></TableCell>
+                  <TableCell><b>Delivery Address</b></TableCell>
                   <TableCell><b>Total Amount</b></TableCell>
                   <TableCell><b>Order Date</b></TableCell>
                   <TableCell><b>Expected Delivery Date</b></TableCell>
@@ -117,33 +103,22 @@ function OrderList() {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((order, index) => (
                     <TableRow key={order._id}>
-                    <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                      <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                       <TableCell>{order._id}</TableCell>
-                      <TableCell>{order.user._id}</TableCell>
+                      {/* <TableCell>{order.user._id}</TableCell> */}
                       <TableCell>{order.user.name}</TableCell>
+                      <TableCell>{order.deliveryAddress}</TableCell>
                       <TableCell>{order.totalAmount}</TableCell>
                       <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
                       <TableCell>{new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB')}</TableCell>
                       <TableCell>
                         {order.status === "Delivered" ? (
-                          // Show delivery date if status is "Delivered"
                           new Date(order.deliveryDate).toLocaleDateString('en-GB')
                         ) : (
                           "Item not delivered"
                         )}
                       </TableCell>
-                      <TableCell>
-                        <Select
-                          value={order.status}
-                          onChange={(event) => handleUpdateOrder(order._id, { status: event.target.value })}
-                        >
-                          <MenuItem value="Pending">Pending</MenuItem>
-                          <MenuItem value="Processing">Processing</MenuItem>
-                          <MenuItem value="Shipped">Shipped</MenuItem>
-                          <MenuItem value="Delivered">Delivered</MenuItem>
-                          <MenuItem value="Cancelled">Cancelled</MenuItem>
-                        </Select>
-                      </TableCell>
+                      <TableCell>{order.status}</TableCell>
                       <TableCell>
                         <Button onClick={() => handleViewDetails(order._id)} variant="contained" color="primary">View Details</Button>
                       </TableCell>
@@ -231,4 +206,4 @@ function OrderList() {
   );
 }
 
-export default OrderList;
+export default Orders;
