@@ -115,71 +115,6 @@ app.put("/user/:id", async (req, res) => {
   }
 });
 
-// // Update user details using post, including password
-// app.post("/user/:id", async (req, res) => {
-//   try {
-//     const userId = req.params.id;
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     // Update fields in the user
-//     user.name = req.body.name || user.name;
-//     user.email = req.body.email || user.email;
-//     user.address = req.body.address || user.address;
-//     user.mobile = req.body.mobile || user.mobile;
-//     user.role = req.body.role || user.role;
-
-//     // Update password if provided
-//     if (req.body.password) {
-//       const hashedPassword = await bcrypt.hash(req.body.password, 10);
-//       user.password = hashedPassword;
-//     }
-
-//     const updatedUser = await user.save();
-//     res.json(updatedUser);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
-// // Update user details, including password
-// Update user details, including password
-// app.put("/user/:id", async (req, res) => {
-//   try {
-//     const userId = req.params.id;
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     // Verify current password
-//     const isPasswordValid = await bcrypt.compare(req.body.currentPassword, user.password);
-//     if (!isPasswordValid) {
-//       return res.status(401).json({ message: "Invalid current password" });
-//     }
-
-//     // Update fields in the user
-//     user.name = req.body.name || user.name;
-//     user.email = req.body.email || user.email;
-//     user.address = req.body.address || user.address;
-//     user.mobile = req.body.mobile || user.mobile;
-//     user.role = req.body.role || user.role;
-
-//     // Update password if provided and current password is valid
-//     if (req.body.password) {
-//       const hashedPassword = await bcrypt.hash(req.body.password, 10);
-//       user.password = hashedPassword;
-//     }
-
-//     const updatedUser = await user.save();
-//     res.json(updatedUser);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
 // Delete User by ID
 app.delete("/user/:id", async (req, res) => {
   try {
@@ -353,21 +288,6 @@ app.get("/products/:id/reviews", async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
-
-// // Deleting a Product
-// app.delete('/products/:id', async (req, res) => {
-//   try {
-//     const product = await Product.findById(req.params.id);
-//     if (!product) {
-//       return res.status(404).json({ message: 'Cannot find product' });
-//     }
-
-//     await product.remove();
-//     res.json({ message: 'Product deleted successfully' });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
 
 // Delete a product
 app.delete("/products/:id", async (req, res) => {
@@ -617,6 +537,83 @@ app.delete("/carts/delete-item/:userId/:productId", async (req, res) => {
 });
 
 
+// Create a new order for a specific user
+app.post("/users/:userId/orders", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    req.body.user = userId; // Assign user ID from URL parameter
+    const order = await Order.create(req.body);
+    res.status(201).json(order);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Get all orders for a specific user
+app.get("/users/:userId/orders", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const orders = await Order.find({ user: userId });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get a single order by ID for a specific user
+app.get("/users/:userId/orders/:id", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const orderId = req.params.id;
+    const order = await Order.findOne({ _id: orderId, user: userId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update an order for a specific user
+app.put("/users/:userId/orders/:id", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const orderId = req.params.id;
+    const order = await Order.findOneAndUpdate({ _id: orderId, user: userId }, req.body, {
+      new: true,
+    });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete an order for a specific user
+app.delete("/users/:userId/orders/:id", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const orderId = req.params.id;
+    const order = await Order.findOneAndDelete({ _id: orderId, user: userId });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json({ message: "Order deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
+
+
+//old
 // Order routes
 app.get("/order/:userId", async (req, res) => {
   try {

@@ -1,7 +1,23 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Grid, Card, CardContent, CardActions, Button, Typography, CardMedia, Container, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Box } from '@mui/material';
+import {
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Typography,
+  CardMedia,
+  Container,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar
+} from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 import Rating from '@mui/material/Rating';
 import StarIcon from '@mui/icons-material/Star';
 import PropTypes from 'prop-types';
@@ -41,48 +57,77 @@ function TextRating({ value }) {
   );
 }
 
-
 TextRating.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
 function Home() {
   const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null); // State to store the selected product
-  const [openModal, setOpenModal] = useState(false); // State to control the modal open/close
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
+  const [snackbarMessage, setSnackbarMessage] = useState(''); // State for Snackbar message
+  const [userCart, setUserCart] = useState([]); // State to store user's cart items
 
   useEffect(() => {
     axios.get('http://localhost:3001/products')
       .then(res => setProducts(res.data))
       .catch(err => console.error(err));
+
+    // Fetch user's cart items
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (userData && userData.userId) {
+      axios.get(`http://localhost:3001/carts/items/${userData.userId}`)
+        .then(res => setUserCart(res.data.cartProducts))
+        .catch(err => console.error(err));
+    }
   }, []);
 
   const addToCart = async (productId) => {
-    const userData = JSON.parse(localStorage.getItem('userData')); // Retrieve user data from localStorage
+    const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.userId) {
       throw new Error('User ID not found');
     }
 
-    await axios.post(`http://localhost:3001/carts/add-product`, { userId: userData.userId, productId, quantity: 1 }, {
-      headers: {
-        Authorization: `Bearer ${userData.token}`,
-      }
-    })
-      .then(res => {
-        console.log('Product added to cart:', res.data);
-      })
-      .catch(err => {
-        console.error('Error adding product to cart:', err);
+    // Check if product is already in user's cart
+    const productInCart = userCart.find(item => item.product._id === productId);
+    if (productInCart) {
+      setSnackbarMessage('Already in cart');
+      setSnackbarOpen(true);
+      return;
+    }
+
+    try {
+      // Add product to cart
+      await axios.post(`http://localhost:3001/carts/add-product`, { userId: userData.userId, productId, quantity: 1 }, {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+        }
       });
+
+      // Update user's cart items
+      const updatedCart = await axios.get(`http://localhost:3001/carts/items/${userData.userId}`);
+      setUserCart(updatedCart.data.cartProducts);
+
+      // Display Snackbar when product is added to cart
+      setSnackbarMessage('Added to cart');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Error adding product to cart:', error);
+    }
   };
 
   const handleViewDetails = (product) => {
-    setSelectedProduct(product); // Set the selected product
-    setOpenModal(true); // Open the modal
+    setSelectedProduct(product);
+    setOpenModal(true);
   };
 
   const handleCloseModal = () => {
-    setOpenModal(false); // Close the modal
+    setOpenModal(false);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   return (
@@ -95,17 +140,22 @@ function Home() {
                 <CardMedia
                   component="img"
                   height="140"
-                  image={product.images[0]} // Display the first image
+                  image={product.images[0]}
                   alt={product.name}
                 />
                 <CardContent>
+                  
                   <Typography variant="h5" component="div">{product.name}</Typography>
                   <Typography variant="body2" color="text.secondary">{product.description}</Typography>
                   <Typography variant="body1">Price: {product.price}</Typography>
                   <Typography variant="body1">Average Rating: <TextRating value={product.averageRating} /></Typography>
                 </CardContent>
                 <CardActions>
-                  <Button variant="outlined" style={{ marginTop: '10px' }} onClick={() => addToCart(product._id)}>Add to Cart</Button>
+                  {userCart.some(item => item.product._id === product._id) ? (
+                    <Button variant="outlined" style={{ marginTop: '10px' }} disabled>Already in Cart</Button>
+                  ) : (
+                    <Button variant="outlined" style={{ marginTop: '10px' }} onClick={() => addToCart(product._id)}>Add to Cart</Button>
+                  )}
                   <Button variant="contained" style={{ marginTop: '10px' }} onClick={() => handleViewDetails(product)}>View Details</Button>
                 </CardActions>
               </Card>
@@ -116,52 +166,69 @@ function Home() {
 
       {/* Modal for displaying product details */}
       <Dialog
-  open={openModal}
-  onClose={handleCloseModal}
-  maxWidth="md"
-  fullWidth
-  PaperProps={{
-    style: {
-      margin: '20px',
-      maxHeight: 'none', // Reset maxHeight
-      height: '60vh', // Set height to 60% of the viewport height
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-    },
-  }}
->
-  {selectedProduct && (
-    <>
-      <DialogTitle>{selectedProduct.name}</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={2} style={{ height: 'auto', flexGrow: 1 }}>
-          <Grid item xs={6} style={{ display: 'flex' }}>
-            <CardMedia
-              component="img"
-              height="140"
-              width="140"
-              image={selectedProduct.images[0]} // Display the first image
-              alt={selectedProduct.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} // Ensure the image fills its container
-            />
-          </Grid>
-          <Grid item xs={6} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div>
-              <DialogContentText>{selectedProduct.description}</DialogContentText>
-              <DialogContentText>Price: {selectedProduct.price}</DialogContentText>
-              <DialogContentText>Average Rating: <TextRating value={selectedProduct.averageRating} /></DialogContentText>
-            </div>
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleCloseModal}>Close</Button>
-      </DialogActions>
-    </>
-  )}
-</Dialog>
+        open={openModal}
+        onClose={handleCloseModal}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          style: {
+            margin: '20px',
+            maxHeight: 'none',
+            height: '60vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+          },
+        }}
+      >
+        {selectedProduct && (
+          <>
+            <DialogTitle>{selectedProduct.name}</DialogTitle>
+            <DialogContent>
+              <Grid container spacing={2} style={{ height: 'auto', flexGrow: 1 }}>
+                <Grid item xs={6} style={{ display: 'flex' }}>
+                  <CardMedia
+                    component="img"
+                    height="140"
+                    width="140"
+                    image={selectedProduct.images[0]}
+                    alt={selectedProduct.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </Grid>
+                <Grid item xs={6} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <DialogContentText>{selectedProduct.description}</DialogContentText>
+                    <DialogContentText>Price: {selectedProduct.price}</DialogContentText>
+                    <DialogContentText>Average Rating: <TextRating value={selectedProduct.averageRating} /></DialogContentText>
+                  </div>
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseModal}>Close</Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
 
+      {/* Snackbar for showing added to cart message */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={2000} // Adjust duration as needed
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'middle' }} // Position Snackbar at the top right
+        style={{ marginTop: '50px' }} // Adjust marginTop to position the Snackbar below
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          severity="success" // Snackbar with success severity
+          onClose={handleSnackbarClose}
+        >
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
     </>
   );
 }
