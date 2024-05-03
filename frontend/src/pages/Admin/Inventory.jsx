@@ -90,17 +90,107 @@ function Inventory() {
     setConfirmationModalOpen(true);
   };
 
+  const handleImageChange = (event) => {
+    setNewProduct({ ...newProduct, images: event.target.files });
+  };
+
+
+  const handleAddProduct = () => {
+
+    const formData = new FormData();
+    formData.append('name', newProduct.name);
+    formData.append('description', newProduct.description);
+    formData.append('price', newProduct.price);
+    formData.append('category', newProduct.category);
+    formData.append('brand', newProduct.brand);
+    formData.append('quantity', newProduct.quantity);
+    formData.append('ratings', newProduct.ratings ? JSON.stringify(newProduct.ratings) : ''); // Ratings might be optional
+
+    // Append each image file to the formData
+    for (let i = 0; i < newProduct.images.length; i++) {
+      formData.append('images', newProduct.images[i]);
+    }
+
+    // Log the FormData object
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]); // Log each key-value pair in the FormData object
+    }
+
+    axios.post('http://localhost:3001/products', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // Set content type to multipart/form-data for file upload
+      }
+    })
+      .then(response => {
+        setProducts([...products, response.data.newProduct]);
+        handleCloseModal();
+        console.log('Product added successfully:', response.data.newProduct); // Log success message
+      })
+      .catch(error => {
+        console.error('Error adding product:', error);
+
+      });
+  };
+
+  
   const handleUpdate = () => {
-    axios.post(`http://localhost:3001/products/${selectedProduct._id}`, newProduct)
-      .then(() => {
+    const formData = new FormData();
+    formData.append('name', newProduct.name);
+    formData.append('description', newProduct.description);
+    formData.append('price', newProduct.price);
+    formData.append('category', newProduct.category);
+    formData.append('brand', newProduct.brand);
+    formData.append('quantity', newProduct.quantity);
+    formData.append('ratings', newProduct.ratings ? JSON.stringify(newProduct.ratings) : ''); // Ratings might be optional
+
+    // Append each image file to the formData
+    for (let i = 0; i < newProduct.images.length; i++) {
+      formData.append('images', newProduct.images[i]);
+    }
+
+    axios.put(`http://localhost:3001/products/${selectedProduct._id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data' // Set content type to multipart/form-data for file upload
+      }
+    })
+      .then(response => {
         // Update the product list with the updated product
-        setProducts(products.map(product => (product._id === selectedProduct._id ? newProduct : product)));
+        const updatedProducts = products.map(product => {
+          if (product._id === selectedProduct._id) {
+            return response.data.updatedProduct;
+          }
+          return product;
+        });
+        setProducts(updatedProducts);
         handleCloseModal();
       })
       .catch(error => {
         console.error('Error updating product:', error);
       });
   };
+
+  // const handleAddProduct = () => {
+  //   axios.post('http://localhost:3001/products', newProduct)
+  //     .then(response => {
+  //       setProducts([...products, response.data.newProduct]);
+  //       handleCloseModal();
+  //     })
+  //     .catch(error => {
+  //       console.error('Error adding product:', error);
+  //     });
+  // };
+
+  // const handleUpdate = () => {
+  //   axios.post(`http://localhost:3001/products/${selectedProduct._id}`, newProduct)
+  //     .then(() => {
+  //       // Update the product list with the updated product
+  //       setProducts(products.map(product => (product._id === selectedProduct._id ? newProduct : product)));
+  //       handleCloseModal();
+  //     })
+  //     .catch(error => {
+  //       console.error('Error updating product:', error);
+  //     });
+  // };
 
   const handleOpenModal = (mode, product) => {
     setModalMode(mode);
@@ -128,17 +218,6 @@ function Inventory() {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleAddProduct = () => {
-    axios.post('http://localhost:3001/products', newProduct)
-      .then(response => {
-        setProducts([...products, response.data.newProduct]);
-        handleCloseModal();
-      })
-      .catch(error => {
-        console.error('Error adding product:', error);
-      });
-  };
-
   return (
     <>
       <Container>
@@ -148,19 +227,10 @@ function Inventory() {
         </Box>
         <Paper>
           {/* <Paper sx={{width:'90%', marginLeft:'5%'}}> */}
-          <TableContainer sx={{maxHeight:500}}>
+          <TableContainer sx={{ maxHeight: 500 }}>
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-                  {/* <TableCell><b>Serial No.</b></TableCell>
-                <TableCell><b>Name</b></TableCell>
-                <TableCell><b>Description</b></TableCell>
-                <TableCell><b>Brand</b></TableCell>
-                <TableCell><b>Category</b></TableCell>
-                <TableCell><b>Quantity</b></TableCell>
-                <TableCell><b>Rating</b></TableCell>
-                <TableCell><b>Price</b></TableCell>
-                <TableCell><b>Actions</b></TableCell> */}
 
                   {columns.map((column) => (
                     <TableCell style={{ backgroundColor: 'black', color: 'white' }} key={column.id}><b>{column.name}</b></TableCell>
@@ -180,15 +250,6 @@ function Inventory() {
                       <TableCell>{product.quantity}</TableCell>
                       <TableCell>{product.averageRating}</TableCell>
                       <TableCell>{product.price}</TableCell>
-
-                      {/* {products.map((product, index) => (
-                <TableRow key={product._id}>
-                  {columns.map((column) => (
-                    <TableCell key={column.id}>
-                      {product[column._id]}
-                      </TableCell>
-                  ))} */}
-
                       <TableCell>
                         <Tooltip title="Edit">
                           <IconButton aria-label="edit" onClick={() => handleOpenModal('edit', product)}>
@@ -207,14 +268,14 @@ function Inventory() {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 15]}            
+            rowsPerPageOptions={[5, 10, 15]}
             rowsPerPage={rowperpage}
             page={page}
             count={products.length}
             component="div"
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleRowsPerPage}
-             />
+          />
         </Paper>
         <Modal
           open={openModal}
@@ -287,6 +348,11 @@ function Inventory() {
               onChange={handleInputChange}
               fullWidth
               margin="normal"
+            /><input
+              accept="image/*"
+              multiple
+              type="file"
+              onChange={handleImageChange}
             />
             <Button variant="contained" onClick={modalMode === 'add' ? handleAddProduct : handleUpdate}>
               {modalMode === 'add' ? 'Add Product' : 'Update Product'}

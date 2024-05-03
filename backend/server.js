@@ -13,6 +13,7 @@
 // });
 
 import dotenv from "dotenv";
+import path from "path"
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -49,13 +50,15 @@ mongoose
   });
 
 
-  // Multer configuration
+// Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Specify the directory where images will be stored
+    cb(null, 'uploads'); // Specify the directory where images will be stored
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname); // Rename the file to avoid conflicts
+    console.log('file')
+    // cb(null, Date.now() + '-' + file.originalname); // Rename the file to avoid conflicts
+    cb(null, Date.now() + path.extname(file.originalname))
   }
 });
 
@@ -178,41 +181,69 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Add a new product
-app.post("/products", async (req, res) => {
-  const product = new Product({
-    name: req.body.name,
-    description: req.body.description,
-    price: req.body.price,
-    category: req.body.category,
-    brand: req.body.brand,
-    quantity: req.body.quantity,
-    images: req.body.images,
-    ratings: req.body.ratings,
-  });
+// // Add a new product
+// app.post("/products", async (req, res) => {
+//   const product = new Product({
+//     name: req.body.name,
+//     description: req.body.description,
+//     price: req.body.price,
+//     category: req.body.category,
+//     brand: req.body.brand,
+//     quantity: req.body.quantity,
+//     images: req.body.images,
+//     ratings: req.body.ratings,
+//   });
 
-  try {
-    // If ratings are provided, calculate the average rating
-    if (req.body.ratings && req.body.ratings.length > 0) {
-      const totalRatings = req.body.ratings.reduce(
-        (total, rating) => total + rating.rating,
-        0
-      );
-      product.averageRating = Number(
-        (totalRatings / req.body.ratings.length).toFixed(2)
-      );
-    }
+//   try {
+//     // If ratings are provided, calculate the average rating
+//     if (req.body.ratings && req.body.ratings.length > 0) {
+//       const totalRatings = req.body.ratings.reduce(
+//         (total, rating) => total + rating.rating,
+//         0
+//       );
+//       product.averageRating = Number(
+//         (totalRatings / req.body.ratings.length).toFixed(2)
+//       );
+//     }
 
-    const newProduct = await product.save();
-    res.status(201).json({ newProduct, message: "Product added successfully" });
-  } catch (error) {
-    console.error("Error adding product:", error);
-    res.status(400).json({ message: error.message });
-  }
-});
+//     const newProduct = await product.save();
+//     res.status(201).json({ newProduct, message: "Product added successfully" });
+//   } catch (error) {
+//     console.error("Error adding product:", error);
+//     res.status(400).json({ message: error.message });
+//   }
+// });
+
+// // POST to update a specific product
+// app.post("/products/:id", async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
+//     if (product == null) {
+//       return res.status(404).json({ message: "Cannot find product" });
+//     }
+
+//     // Update fields in the product
+//     product.name = req.body.name || product.name;
+//     product.description = req.body.description || product.description;
+//     product.price = req.body.price || product.price;
+//     product.category = req.body.category || product.category;
+//     product.brand = req.body.brand || product.brand;
+//     product.quantity = req.body.quantity || product.quantity;
+//     product.images = req.body.images || product.images;
+
+//     const updatedProduct = await product.save();
+//     res.json(updatedProduct);
+//   } catch (error) {
+//     res.status(400).json({ message: error.message });
+//   }
+// });
 
 // Add a new product with image upload
 app.post("/products", upload.array('images', 5), async (req, res) => {
+  
+  console.log('req.body:', req.body); // Log the request body
+  console.log('req.files:', req.files); // Log the uploaded files
+  
   try {
     // Create an array of image URLs from uploaded files
     const images = req.files.map(file => file.path);
@@ -225,7 +256,7 @@ app.post("/products", upload.array('images', 5), async (req, res) => {
       brand: req.body.brand,
       quantity: req.body.quantity,
       images: images, // Use the array of image URLs
-      ratings: req.body.ratings,
+      ratings: req.body.ratings || [],
     });
 
     // If ratings are provided, calculate the average rating
@@ -239,6 +270,7 @@ app.post("/products", upload.array('images', 5), async (req, res) => {
       );
     }
 
+    await product.save();
     const newProduct = await product.save();
     res.status(201).json({ newProduct, message: "Product added successfully" });
   } catch (error) {
@@ -247,13 +279,13 @@ app.post("/products", upload.array('images', 5), async (req, res) => {
   }
 });
 
-// POST to update a specific product
-app.post("/products/:id", async (req, res) => {
+// POST to update a specific product with images
+app.put("/products/:productId", upload.array('images', 5), async (req, res) => {
+  const productId = req.params.productId;
+
   try {
-    const product = await Product.findById(req.params.id);
-    if (product == null) {
-      return res.status(404).json({ message: "Cannot find product" });
-    }
+    // Find the product by ID
+    const product = await Product.findById(productId);
 
     // Update fields in the product
     product.name = req.body.name || product.name;
@@ -262,14 +294,24 @@ app.post("/products/:id", async (req, res) => {
     product.category = req.body.category || product.category;
     product.brand = req.body.brand || product.brand;
     product.quantity = req.body.quantity || product.quantity;
-    product.images = req.body.images || product.images;
 
+    // Check if new images are uploaded and update if necessary
+    if (req.files && req.files.length > 0) {
+      // Assuming images are stored as file paths, update with new file paths
+      const newImages = req.files.map(file => file.path);
+      product.images = newImages;
+    }
+
+    // Save the updated product
     const updatedProduct = await product.save();
-    res.json(updatedProduct);
+    res.json({ updatedProduct, message: "Product updated successfully" });
   } catch (error) {
+    console.error("Error updating product:", error);
     res.status(400).json({ message: error.message });
   }
 });
+
+
 
 // Post a new rating for a product
 app.post("/products/:id/ratings", async (req, res) => {
