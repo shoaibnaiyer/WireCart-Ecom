@@ -108,8 +108,9 @@ function LoginAdmin() {
                             Login
                         </Button>
                         <Typography variant="body2" align="center">
-                           <div>Customer? <Link to="/login-customer">Click here to go to Customer Login</Link></div>
-                           <div>New User? <Link to="/register1">Click here to Register</Link></div>
+                           Customer? <Link to="/login-customer">Click here to go to Customer Login</Link>
+                           <br />
+                           New User? <Link to="/register1">Click here to Register</Link>
                         </Typography>
                     </Box>
                 </Box>

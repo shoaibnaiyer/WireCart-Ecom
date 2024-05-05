@@ -54,32 +54,31 @@ function Navbar1() {
     return (
         <AppBar position="sticky">
             <Toolbar>
-            <Typography
-  variant="h6"
-  component={Link}
-  to="/"
-  sx={{
-    flexGrow: 1,
-    textDecoration: 'none',
-    color: 'inherit',
-    fontFamily: 'Arial, sans-serifPoppin', // Change font to Arial or any desired font
-    '&:hover': {
-      color: 'black', // Change to primary color on hover
-      textDecoration: 'overline', // Underline text on hover
-      fontWeight: 'bold', // Make the text bold on hover
-      borderRadius: '4px', // Add border radius
-      transition: 'background-color 0.3s, color 0.3s, text-decoration 0.3s', // Smooth transition effect
-    },
-    '&:focus': {
-      outline: 'none', // Remove outline on focus
-    },
-  }}
->
-  WireCart
-</Typography>
+                <Typography
+                    variant="h6"
+                    component={Link}
+                    to="/"
+                    sx={{
+                        flexGrow: 1,
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        fontFamily: 'Arial, sans-serifPoppin', // Change font to Arial or any desired font
+                        '&:hover': {
+                            color: 'black', // Change to primary color on hover
+                            textDecoration: 'overline', // Underline text on hover
+                            fontWeight: 'bold', // Make the text bold on hover
+                            borderRadius: '4px', // Add border radius
+                            transition: 'background-color 0.3s, color 0.3s, text-decoration 0.3s', // Smooth transition effect
+                        },
+                        '&:focus': {
+                            outline: 'none', // Remove outline on focus
+                        },
+                    }}
+                >
+                    WireCart
+                </Typography>
 
-
-                <Hidden mdUp>
+                <Hidden smUp>
                     <Button
                         color="inherit"
                         aria-controls="menu"

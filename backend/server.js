@@ -324,7 +324,10 @@ app.put("/products/:productId", upload.array('images', 5), async (req, res) => {
 app.get('/products', async (req, res) => {
   try {
     // Fetch all products
-    const products = await Product.find();
+    const products = await Product.find().populate({
+      path: 'ratings.userId',
+      select: 'name', // Select only the name field from the user document
+    });
 
     // If no products are found, return a 404 status with a message
     if (!products || products.length === 0) {

@@ -67,24 +67,21 @@ function Home() {
   const [openModal, setOpenModal] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(''); // State for Snackbar message
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // State for Snackbar severity
   const [userCart, setUserCart] = useState([]); // State to store user's cart items
 
   useEffect(() => {
     axios.get('http://localhost:3001/products')
       .then(res => {
-
-        // console.log(res.data); // Log the fetched data
         setProducts(res.data)
       })
       .catch(err => console.error(err));
-
 
     // Fetch user's cart items if userData is available
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData && userData.userId) {
       fetchUserCart(userData.userId);
     }
-
   }, []);
 
   const fetchUserCart = (userId) => {
@@ -94,7 +91,6 @@ function Home() {
       })
       .catch(err => {
         if (err.response && err.response.status === 404) {
-          // If cart not found, set userCart to an empty array
           setUserCart([]);
         } else {
           console.error(err);
@@ -105,10 +101,12 @@ function Home() {
   const addToCart = async (productId) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.userId) {
-      throw new Error('User ID not found');
+      setSnackbarSeverity('error'); // Change snackbar severity to error
+      setSnackbarMessage('Please login to continue');
+      setSnackbarOpen(true);
+      return;
     }
 
-    // Check if product is already in user's cart
     const productInCart = userCart.find(item => item.product._id === productId);
     if (productInCart) {
       setSnackbarMessage('Already in cart');
@@ -117,18 +115,16 @@ function Home() {
     }
 
     try {
-      // Add product to cart
       await axios.post(`http://localhost:3001/carts/add-product`, { userId: userData.userId, productId, quantity: 1 }, {
         headers: {
           Authorization: `Bearer ${userData.token}`,
         }
       });
 
-      // Update user's cart items
       const updatedCart = await axios.get(`http://localhost:3001/carts/items/${userData.userId}`);
       setUserCart(updatedCart.data.cartProducts);
 
-      // Display Snackbar when product is added to cart
+      setSnackbarSeverity('success'); // Change snackbar severity back to success
       setSnackbarMessage('Added to cart');
       setSnackbarOpen(true);
     } catch (error) {
@@ -163,7 +159,6 @@ function Home() {
                   alt={product.name}
                 />
                 <CardContent>
-
                   <Typography variant="h5" component="div">{product.name}</Typography>
                   <Typography variant="body2" color="text.secondary">{product.description}</Typography>
                   <Typography variant="body1">Price: {product.price}</Typography>
@@ -193,10 +188,9 @@ function Home() {
           style: {
             margin: '20px',
             maxHeight: 'none',
-            height: '60vh',
+            height: '80vh',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between',
           },
         }}
       >
@@ -204,8 +198,8 @@ function Home() {
           <>
             <DialogTitle>{selectedProduct.name}</DialogTitle>
             <DialogContent>
-              <Grid container spacing={2} style={{ height: 'auto', flexGrow: 1 }}>
-                <Grid item xs={6} style={{ display: 'flex' }}>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
                   <CardMedia
                     component="img"
                     height="140"
@@ -215,7 +209,7 @@ function Home() {
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </Grid>
-                <Grid item xs={6} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <Grid item xs={6}>
                   <div>
                     <DialogContentText>{selectedProduct.description}</DialogContentText>
                     <DialogContentText>Price: {selectedProduct.price}</DialogContentText>
@@ -223,6 +217,17 @@ function Home() {
                   </div>
                 </Grid>
               </Grid>
+            </DialogContent>
+            {/* Reviews Section */}
+            <DialogContent>
+              <Typography variant="h6">Product Reviews</Typography>
+              {selectedProduct.ratings.map(rating => (
+                <div key={rating._id}>
+                  <Typography variant="subtitle1">{rating.userId}</Typography>
+                  <TextRating value={rating.rating} />
+                  <Typography variant="body2">{rating.review}</Typography>
+                </div>
+              ))}
             </DialogContent>
             <DialogActions>
               <Button onClick={handleCloseModal}>Close</Button>
@@ -236,13 +241,13 @@ function Home() {
         open={snackbarOpen}
         autoHideDuration={2000} // Adjust duration as needed
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position Snackbar at the top right
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position Snackbar at the top center
         style={{ marginTop: '50px' }} // Adjust marginTop to position the Snackbar below
       >
         <MuiAlert
           elevation={6}
           variant="filled"
-          severity="success" // Snackbar with success severity
+          severity={snackbarSeverity} // Dynamically set severity based on state
           onClose={handleSnackbarClose}
         >
           {snackbarMessage}
