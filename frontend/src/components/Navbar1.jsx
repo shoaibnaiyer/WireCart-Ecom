@@ -54,11 +54,30 @@ function Navbar1() {
     return (
         <AppBar position="sticky">
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>
-                        WireCart
-                    </Link>
-                </Typography>
+            <Typography
+  variant="h6"
+  component={Link}
+  to="/"
+  sx={{
+    flexGrow: 1,
+    textDecoration: 'none',
+    color: 'inherit',
+    fontFamily: 'Arial, sans-serifPoppin', // Change font to Arial or any desired font
+    '&:hover': {
+      color: 'black', // Change to primary color on hover
+      textDecoration: 'overline', // Underline text on hover
+      fontWeight: 'bold', // Make the text bold on hover
+      borderRadius: '4px', // Add border radius
+      transition: 'background-color 0.3s, color 0.3s, text-decoration 0.3s', // Smooth transition effect
+    },
+    '&:focus': {
+      outline: 'none', // Remove outline on focus
+    },
+  }}
+>
+  WireCart
+</Typography>
+
 
                 <Hidden mdUp>
                     <Button
@@ -70,35 +89,35 @@ function Navbar1() {
                         <MenuIcon />
                     </Button>
                     <Menu
-  anchorEl={anchorEl}
-  open={Boolean(anchorEl)}
-  onClose={handleMenuClose}
-  anchorOrigin={{
-    vertical: 'top',
-    horizontal: 'right',
-  }}
-  transformOrigin={{
-    vertical: 'top',
-    horizontal: 'right',
-  }}
->
-  {isUserSignedIn ? (
-    [
-      <MenuItem key="home" onClick={handleMenuClose} component={Link} to="/home">Home</MenuItem>,
-      userData.userType === 'Customer' ? (
-        <MenuItem key="customer-dashboard" onClick={handleMenuClose} component={Link} to="/customer-dashboard">Customer Dashboard</MenuItem>
-      ) : (
-        <MenuItem key="admin-dashboard" onClick={handleMenuClose} component={Link} to="/admin-dashboard">Admin Dashboard</MenuItem>
-      ),
-      <MenuItem key="sign-out" onClick={() => { handleMenuClose(); handleSignOut(); }} component={Link} to="/login-customer">Sign Out</MenuItem>
-    ]
-  ) : (
-    [
-      <MenuItem key="login" onClick={handleMenuClose} component={Link} to="/login-customer">Login</MenuItem>,
-      <MenuItem key="register" onClick={handleMenuClose} component={Link} to="/register1">Register</MenuItem>
-    ]
-  )}
-</Menu>
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                        transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right',
+                        }}
+                    >
+                        {isUserSignedIn ? (
+                            [
+                                <MenuItem key="home" onClick={handleMenuClose} component={Link} to="/home">Home</MenuItem>,
+                                userData.userType === 'Customer' ? (
+                                    <MenuItem key="customer-dashboard" onClick={handleMenuClose} component={Link} to="/customer-dashboard">Customer Dashboard</MenuItem>
+                                ) : (
+                                    <MenuItem key="admin-dashboard" onClick={handleMenuClose} component={Link} to="/admin-dashboard">Admin Dashboard</MenuItem>
+                                ),
+                                <MenuItem key="sign-out" onClick={() => { handleMenuClose(); handleSignOut(); }} component={Link} to="/login-customer">Sign Out</MenuItem>
+                            ]
+                        ) : (
+                            [
+                                <MenuItem key="login" onClick={handleMenuClose} component={Link} to="/login-customer">Login</MenuItem>,
+                                <MenuItem key="register" onClick={handleMenuClose} component={Link} to="/register1">Register</MenuItem>
+                            ]
+                        )}
+                    </Menu>
 
                 </Hidden>
 

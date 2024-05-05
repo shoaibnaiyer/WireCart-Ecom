@@ -13,7 +13,9 @@
 // });
 
 import dotenv from "dotenv";
+import { fileURLToPath } from 'url';
 import path from "path"
+import { dirname } from 'path';
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
@@ -30,6 +32,7 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.static('uploads'))
 
 // dotenv.config();
 dotenv.config({ path: "../.env" });
@@ -49,20 +52,21 @@ mongoose
     console.log("Unable to connect to the Server");
   });
 
-
 // Multer configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads'); // Specify the directory where images will be stored
+    cb(null, 'uploads/images'); // Specify the directory where images will be stored
   },
   filename: (req, file, cb) => {
     console.log('file')
-    // cb(null, Date.now() + '-' + file.originalname); // Rename the file to avoid conflicts
-    cb(null, Date.now() + path.extname(file.originalname))
+    cb(null, file.fieldname + "_" + Date.now() + path.extname(file.originalname))
   }
 });
 
 const upload = multer({ storage: storage });
+
+// // Serve static files from the "uploads" directory
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Registering Users
 app.post("/register", async (req, res) => {
@@ -246,7 +250,7 @@ app.post("/products", upload.array('images', 5), async (req, res) => {
   
   try {
     // Create an array of image URLs from uploaded files
-    const images = req.files.map(file => file.path);
+    const images = req.files.map(file => file.filename);
 
     const product = new Product({
       name: req.body.name,
@@ -269,6 +273,8 @@ app.post("/products", upload.array('images', 5), async (req, res) => {
         (totalRatings / req.body.ratings.length).toFixed(2)
       );
     }
+
+    console.log(req.images)
 
     await product.save();
     const newProduct = await product.save();
@@ -298,9 +304,11 @@ app.put("/products/:productId", upload.array('images', 5), async (req, res) => {
     // Check if new images are uploaded and update if necessary
     if (req.files && req.files.length > 0) {
       // Assuming images are stored as file paths, update with new file paths
-      const newImages = req.files.map(file => file.path);
+      const newImages = req.files.map(file => file.filename);
       product.images = newImages;
     }
+
+    console.log(req.images)
 
     // Save the updated product
     const updatedProduct = await product.save();
@@ -312,6 +320,38 @@ app.put("/products/:productId", upload.array('images', 5), async (req, res) => {
 });
 
 
+// Fetch products with images
+app.get('/products', async (req, res) => {
+  try {
+    // Fetch all products
+    const products = await Product.find();
+
+    // If no products are found, return a 404 status with a message
+    if (!products || products.length === 0) {
+      return res.status(404).json({ message: 'No products found' });
+    }
+
+    // Iterate through each product and construct the response data with image URL
+    const productsWithImages = products.map(product => ({
+      _id: product._id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      brand: product.brand,
+      quantity: product.quantity,
+      images: product.images.map(image => `${req.protocol}://${req.get('host')}/images/${image.replace(/\\/g, '/')}`), // Construct image URLs
+      ratings: product.ratings,
+      averageRating: product.averageRating
+    }));
+
+    // Return the array of products with image URLs
+    res.status(200).json(productsWithImages);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 // Post a new rating for a product
 app.post("/products/:id/ratings", async (req, res) => {
@@ -341,17 +381,6 @@ app.post("/products/:id/ratings", async (req, res) => {
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-});
-
-// Get All Products
-app.get("/products", async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.status(200).json(products);
-  } catch (error) {
-    console.error("Error getting products:", error);
-    res.status(500).json({ error: "Error getting products" });
   }
 });
 

@@ -71,17 +71,36 @@ function Home() {
 
   useEffect(() => {
     axios.get('http://localhost:3001/products')
-      .then(res => setProducts(res.data))
+      .then(res => {
+
+        // console.log(res.data); // Log the fetched data
+        setProducts(res.data)
+      })
       .catch(err => console.error(err));
 
-    // Fetch user's cart items
+
+    // Fetch user's cart items if userData is available
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData && userData.userId) {
-      axios.get(`http://localhost:3001/carts/items/${userData.userId}`)
-        .then(res => setUserCart(res.data.cartProducts))
-        .catch(err => console.error(err));
+      fetchUserCart(userData.userId);
     }
+
   }, []);
+
+  const fetchUserCart = (userId) => {
+    axios.get(`http://localhost:3001/carts/items/${userId}`)
+      .then(res => {
+        setUserCart(res.data.cartProducts);
+      })
+      .catch(err => {
+        if (err.response && err.response.status === 404) {
+          // If cart not found, set userCart to an empty array
+          setUserCart([]);
+        } else {
+          console.error(err);
+        }
+      });
+  };
 
   const addToCart = async (productId) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
@@ -144,7 +163,7 @@ function Home() {
                   alt={product.name}
                 />
                 <CardContent>
-                  
+
                   <Typography variant="h5" component="div">{product.name}</Typography>
                   <Typography variant="body2" color="text.secondary">{product.description}</Typography>
                   <Typography variant="body1">Price: {product.price}</Typography>
@@ -217,7 +236,7 @@ function Home() {
         open={snackbarOpen}
         autoHideDuration={2000} // Adjust duration as needed
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'middle' }} // Position Snackbar at the top right
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position Snackbar at the top right
         style={{ marginTop: '50px' }} // Adjust marginTop to position the Snackbar below
       >
         <MuiAlert

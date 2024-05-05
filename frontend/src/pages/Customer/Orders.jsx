@@ -155,15 +155,15 @@ function Orders() {
             {selectedOrder && (
               <div>
                 <h3>Order Details</h3>
-                <p>Order ID: {selectedOrder._id}</p>
-                <p>User ID: {selectedOrder.user._id}</p>
-                <p>User Name: {selectedOrder.user.name}</p>
-                <p>User Address: {selectedOrder.user.address}</p>
-                <p>Total Amount: {selectedOrder.totalAmount}</p>
-                <p>Order Date: {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
-                <p>Expected Delivery Date: {new Date(selectedOrder.expectedDeliveryDate).toLocaleDateString()}</p>
-                <p>Delivery Date: {selectedOrder.deliveryDate}</p>
-                <p>Status: {selectedOrder.status}</p>
+                <p style={{ margin: '4px 0' }}>Order ID: {selectedOrder._id}</p>
+                <p style={{ margin: '4px 0' }}>User ID: {selectedOrder.user._id}</p>
+                <p style={{ margin: '4px 0' }}>User Name: {selectedOrder.user.name}</p>
+                <p style={{ margin: '4px 0' }}>User Address: {selectedOrder.user.address}</p>
+                <p style={{ margin: '4px 0' }}>Total Amount: {selectedOrder.totalAmount}</p>
+                <p style={{ margin: '4px 0' }}>Order Date: {new Date(selectedOrder.orderDate).toLocaleDateString()}</p>
+                <p style={{ margin: '4px 0' }}>Expected Delivery Date: {new Date(selectedOrder.expectedDeliveryDate).toLocaleDateString()}</p>
+                <p style={{ margin: '4px 0' }}>Delivery Date: {selectedOrder.deliveryDate}</p>
+                <p style={{ margin: '4px 0' }}>Status: {selectedOrder.status}</p>
                 <h3>Order Items</h3>
                 <TableContainer>
                   <Table>

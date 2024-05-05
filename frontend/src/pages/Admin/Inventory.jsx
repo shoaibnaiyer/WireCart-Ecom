@@ -124,11 +124,11 @@ function Inventory() {
       .then(response => {
         setProducts([...products, response.data.newProduct]);
         handleCloseModal();
+        console.log(response);
         console.log('Product added successfully:', response.data.newProduct); // Log success message
       })
       .catch(error => {
         console.error('Error adding product:', error);
-
       });
   };
 
