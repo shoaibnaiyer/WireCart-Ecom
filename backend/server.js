@@ -185,63 +185,6 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// // Add a new product
-// app.post("/products", async (req, res) => {
-//   const product = new Product({
-//     name: req.body.name,
-//     description: req.body.description,
-//     price: req.body.price,
-//     category: req.body.category,
-//     brand: req.body.brand,
-//     quantity: req.body.quantity,
-//     images: req.body.images,
-//     ratings: req.body.ratings,
-//   });
-
-//   try {
-//     // If ratings are provided, calculate the average rating
-//     if (req.body.ratings && req.body.ratings.length > 0) {
-//       const totalRatings = req.body.ratings.reduce(
-//         (total, rating) => total + rating.rating,
-//         0
-//       );
-//       product.averageRating = Number(
-//         (totalRatings / req.body.ratings.length).toFixed(2)
-//       );
-//     }
-
-//     const newProduct = await product.save();
-//     res.status(201).json({ newProduct, message: "Product added successfully" });
-//   } catch (error) {
-//     console.error("Error adding product:", error);
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
-// // POST to update a specific product
-// app.post("/products/:id", async (req, res) => {
-//   try {
-//     const product = await Product.findById(req.params.id);
-//     if (product == null) {
-//       return res.status(404).json({ message: "Cannot find product" });
-//     }
-
-//     // Update fields in the product
-//     product.name = req.body.name || product.name;
-//     product.description = req.body.description || product.description;
-//     product.price = req.body.price || product.price;
-//     product.category = req.body.category || product.category;
-//     product.brand = req.body.brand || product.brand;
-//     product.quantity = req.body.quantity || product.quantity;
-//     product.images = req.body.images || product.images;
-
-//     const updatedProduct = await product.save();
-//     res.json(updatedProduct);
-//   } catch (error) {
-//     res.status(400).json({ message: error.message });
-//   }
-// });
-
 // Add a new product with image upload
 app.post("/products", upload.array('images', 5), async (req, res) => {
   
@@ -746,24 +689,6 @@ app.put("/users/:userId/orders/:id", async (req, res) => {
   }
 });
 
-
-
-// // Update an order for a specific user
-// app.put("/users/:userId/orders/:id", async (req, res) => {
-//   try {
-//     const userId = req.params.userId;
-//     const orderId = req.params.id;
-//     const order = await Order.findOneAndUpdate({ _id: orderId, user: userId }, req.body, {
-//       new: true,
-//     });
-//     if (!order) {
-//       return res.status(404).json({ message: "Order not found" });
-//     }
-//     res.json(order);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 
 // Delete an order for a specific user
 app.delete("/users/:userId/orders/:id", async (req, res) => {
