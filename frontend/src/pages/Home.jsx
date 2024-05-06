@@ -154,7 +154,7 @@ function Home() {
               <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
                 <CardMedia
                   component="img"
-                  height="140"
+                  height="200"
                   image={product.images[0]}
                   alt={product.name}
                 />

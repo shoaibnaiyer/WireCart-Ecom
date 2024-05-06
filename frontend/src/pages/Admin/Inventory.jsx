@@ -132,7 +132,7 @@ function Inventory() {
       });
   };
 
-  
+
   const handleUpdate = () => {
     const formData = new FormData();
     formData.append('name', newProduct.name);
@@ -168,29 +168,6 @@ function Inventory() {
         console.error('Error updating product:', error);
       });
   };
-
-  // const handleAddProduct = () => {
-  //   axios.post('http://localhost:3001/products', newProduct)
-  //     .then(response => {
-  //       setProducts([...products, response.data.newProduct]);
-  //       handleCloseModal();
-  //     })
-  //     .catch(error => {
-  //       console.error('Error adding product:', error);
-  //     });
-  // };
-
-  // const handleUpdate = () => {
-  //   axios.post(`http://localhost:3001/products/${selectedProduct._id}`, newProduct)
-  //     .then(() => {
-  //       // Update the product list with the updated product
-  //       setProducts(products.map(product => (product._id === selectedProduct._id ? newProduct : product)));
-  //       handleCloseModal();
-  //     })
-  //     .catch(error => {
-  //       console.error('Error updating product:', error);
-  //     });
-  // };
 
   const handleOpenModal = (mode, product) => {
     setModalMode(mode);
@@ -354,7 +331,8 @@ function Inventory() {
               type="file"
               onChange={handleImageChange}
             />
-            <Button variant="contained" onClick={modalMode === 'add' ? handleAddProduct : handleUpdate}>
+            <Button variant="contained" style={{ marginTop: '10px' }}
+              onClick={modalMode === 'add' ? handleAddProduct : handleUpdate}>
               {modalMode === 'add' ? 'Add Product' : 'Update Product'}
             </Button>
           </Box>
