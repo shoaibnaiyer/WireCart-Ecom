@@ -487,9 +487,6 @@ app.delete("/carts/remove-product/:userId/:productId", async (req, res) => {
   }
 });
 
-
-
-
 // Change the quantity of an existing item in the logged-in user's cart
 app.put("/carts/change-quantity", async (req, res) => {
   const { userId, productId, quantity } = req.body;
@@ -557,7 +554,6 @@ app.delete("/carts/delete-all-items", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Update quantity of a product in the cart
 app.put("/carts/update-item/:userId/:productId", async (req, res) => {
