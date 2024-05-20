@@ -162,11 +162,11 @@ function CustomerList() {
                       <TableCell>{customer.mobile}</TableCell>
                       <TableCell>{customer.role}</TableCell>
                       <TableCell>
-                        <Tooltip title="Edit">
+                        {/* <Tooltip title="Edit">
                           <IconButton aria-label="edit" onClick={() => handleUpdate(customer._id)}>
                             <EditIcon />
                           </IconButton>
-                        </Tooltip>
+                        </Tooltip> */}
                         <Tooltip title="Delete">
                           <IconButton aria-label="delete" onClick={() => handleDelete(customer._id)}>
                             <DeleteIcon />

@@ -192,14 +192,14 @@ function Cart() {
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow>
-                <TableCell><b>S. No.</b></TableCell>
-                <TableCell><b>Name</b></TableCell>
-                <TableCell><b>Description</b></TableCell>
-                <TableCell><b>Price</b></TableCell>
-                <TableCell><b>Quantity</b></TableCell>
-                <TableCell><b>Total Price</b></TableCell>
-                <TableCell><b>Actions</b></TableCell>
+              <TableRow style={{ backgroundColor: 'black', color: 'white' }} >
+                <TableCell style={{ color: 'inherit' }}><b>S. No.</b></TableCell>
+                <TableCell style={{ color: 'inherit' }}><b>Name</b></TableCell>
+                <TableCell style={{ color: 'inherit' }}><b>Description</b></TableCell>
+                <TableCell style={{ color: 'inherit' }}><b>Price</b></TableCell>
+                <TableCell style={{ color: 'inherit' }}><b>Quantity</b></TableCell>
+                <TableCell style={{ color: 'inherit' }}><b>Total Price</b></TableCell>
+                <TableCell style={{ color: 'inherit' }}><b>Actions</b></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

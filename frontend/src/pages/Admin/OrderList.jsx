@@ -193,11 +193,11 @@ function OrderList() {
                 <TableContainer>
                   <Table>
                     <TableHead>
-                      <TableRow>
-                        <TableCell><b>Product Name</b></TableCell>
-                        <TableCell><b>Quantity</b></TableCell>
-                        <TableCell><b>Price</b></TableCell>
-                        <TableCell><b>Total Price</b></TableCell>
+                      <TableRow style={{ backgroundColor: 'black', color: 'white' }} >
+                        <TableCell style={{ color: 'inherit' }}><b>Product Name</b></TableCell>
+                        <TableCell style={{ color: 'inherit' }}><b>Quantity</b></TableCell>
+                        <TableCell style={{ color: 'inherit' }}><b>Price</b></TableCell>
+                        <TableCell style={{ color: 'inherit' }}><b>Total Price</b></TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>

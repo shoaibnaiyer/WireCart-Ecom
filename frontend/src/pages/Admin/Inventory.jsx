@@ -208,7 +208,6 @@ function Inventory() {
             <Table stickyHeader>
               <TableHead>
                 <TableRow>
-
                   {columns.map((column) => (
                     <TableCell style={{ backgroundColor: 'black', color: 'white' }} key={column.id}><b>{column.name}</b></TableCell>
                   ))}
