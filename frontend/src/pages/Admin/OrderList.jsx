@@ -16,7 +16,7 @@ import {
   MenuItem,
   Modal,
   Box,
-  Button // Import Button from Material-UI
+  Button
 } from '@mui/material';
 
 function OrderList() {
@@ -99,17 +99,17 @@ function OrderList() {
           <TableContainer>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell><b>S. No.</b></TableCell>
-                  <TableCell><b>Order ID</b></TableCell>
-                  <TableCell><b>User ID</b></TableCell>
-                  <TableCell><b>User Name</b></TableCell>
-                  <TableCell><b>Total Amount</b></TableCell>
-                  <TableCell><b>Order Date</b></TableCell>
-                  <TableCell><b>Expected Delivery Date</b></TableCell>
-                  <TableCell><b>Delivery Date</b></TableCell>
-                  <TableCell><b>Status</b></TableCell>
-                  <TableCell><b>Action</b></TableCell>
+                <TableRow style={{ backgroundColor: 'black', color: 'white' }}>
+                  <TableCell style={{ color: 'inherit' }}><b>S. No.</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Order ID</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>User ID</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>User Name</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Total Amount</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Order Date</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Expected Delivery Date</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Delivery Date</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Status</b></TableCell>
+                  <TableCell style={{ color: 'inherit' }}><b>Action</b></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

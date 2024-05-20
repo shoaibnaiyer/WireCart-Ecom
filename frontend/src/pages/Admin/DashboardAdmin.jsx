@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-vars */
-// import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 import * as React from 'react';
@@ -21,7 +20,6 @@ const DashboardAdmin = () => {
   const cards = [
     {
       id: 1,
-      // image: "/static/images/cards/contemplative-reptile.jpg",
       title: "Inventory",
       description: "Click this card to view and manage Inventory",
       link: "/inventory",
@@ -29,7 +27,6 @@ const DashboardAdmin = () => {
     },
     {
       id: 2,
-      // image: "/static/images/cards/contemplative-reptile.jpg",
       title: "Orders",
       description: "Click this card to view and manage Orders",
       link: "/order-list",
@@ -38,7 +35,6 @@ const DashboardAdmin = () => {
 
     {
       id: 3,
-      // image: "/static/images/cards/contemplative-reptile.jpg",
       title: "Customers",
       description: "Click this card to view and manage Customers",
       link: "/customer-list",
@@ -48,7 +44,6 @@ const DashboardAdmin = () => {
 
   return (
     <>
-      {/* <h2 style={{ marginBottom: '50px', marginLeft: '50px', marginTop: '20px',}}>Admin Dashboard</h2> */}
       <Container maxWidth="lg">
         <Typography variant="h2" gutterBottom style={{ marginTop: '20px' }}>Admin Dashboard</Typography>
         <Grid container spacing={3} justifyContent="center" alignItems="center">

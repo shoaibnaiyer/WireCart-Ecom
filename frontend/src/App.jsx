@@ -1,5 +1,4 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
-// import Navbar from './components/Navbar'
 import { Box } from '@mui/material'
 import { useEffect } from 'react'
 import Navbar1 from './components/Navbar1'
@@ -21,27 +20,20 @@ import Cart from './pages/Customer/Cart'
 import Orders from './pages/Customer/Orders'
 import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 
-// import './App.css'
-
-
 function App() {
   const isUserSignedIn = !!localStorage.getItem('token')
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Redirect to a specific route if the condition is met
     if (location.pathname === '/') {
       navigate('/');
     }
   }, [location.pathname, navigate]);
 
   return (
-    // <BrowserRouter>
     <Box display="flex" flexDirection="column" minHeight="100vh">
-    {/* <div className='main-container'> */}
       <Navbar1 />
-      {/* <Navbar /> */}
       <Box flexGrow={1}>
       <Routes>
         {!isUserSignedIn && (
@@ -73,8 +65,6 @@ function App() {
       </Box>
       <Footer />
       </Box >
-    // </div >
-    // </BrowserRouter>
   )
 }
 

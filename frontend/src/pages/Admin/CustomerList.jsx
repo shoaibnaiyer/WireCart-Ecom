@@ -67,7 +67,7 @@ function CustomerList() {
       .catch(error => {
         console.error('Error fetching customers:', error);
       });
-  }, []); // Empty dependency array ensures the effect runs only once, on component mount
+  }, []);
 
   const handleDelete = (customerId) => {
     setSelectedCustomer(customers.find(customer => customer._id === customerId));
@@ -75,7 +75,6 @@ function CustomerList() {
   };
 
   const handleUpdate = (customerId) => {
-    // Fetch the customer details by ID and implement update logic
     const customerToUpdate = customers.find(customer => customer._id === customerId);
     setNewCustomer(customerToUpdate);
     setEditModalOpen(true);
@@ -124,7 +123,6 @@ function CustomerList() {
         console.error('Error updating customer:', error);
       });
   };
-
 
   return (
     <>

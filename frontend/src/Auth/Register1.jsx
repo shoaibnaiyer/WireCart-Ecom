@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { Container, Box, Typography, TextField, Button } from '@mui/material';
+import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 import { Link } from 'react-router-dom';
 import backgroundImage from '../assets/marsRover.jpg';
 
@@ -15,6 +15,8 @@ function Register1() {
         password: '',
         role: 'Customer', // Default role set to Customer
     });
+    
+    const [errorMessage, setErrorMessage] = useState('');
 
     const navigate = useNavigate();
 
@@ -56,6 +58,8 @@ function Register1() {
             })
             .catch((error) => {
                 console.log('Unable to register user');
+                setErrorMessage(error.response.data.message || 'An error occurred during login');
+
             });
     };
 
@@ -76,6 +80,11 @@ function Register1() {
                     <Typography variant="h5" component="h1" align="center" gutterBottom>
                         Register
                     </Typography>
+                    {errorMessage && (
+                        <Alert severity="error" sx={{ mb: 2 }}>
+                            {errorMessage}
+                        </Alert>
+                    )}
                     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
                         <TextField
                             margin="dense"

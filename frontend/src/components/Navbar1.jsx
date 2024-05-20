@@ -62,16 +62,16 @@ function Navbar1() {
                         flexGrow: 1,
                         textDecoration: 'none',
                         color: 'inherit',
-                        fontFamily: 'Arial, sans-serifPoppin', // Change font to Arial or any desired font
+                        fontFamily: 'Arial, sans-serifPoppin',
                         '&:hover': {
-                            color: 'black', // Change to primary color on hover
-                            textDecoration: 'overline', // Underline text on hover
-                            fontWeight: 'bold', // Make the text bold on hover
-                            borderRadius: '4px', // Add border radius
-                            transition: 'background-color 0.3s, color 0.3s, text-decoration 0.3s', // Smooth transition effect
+                            color: 'black',
+                            textDecoration: 'overline',
+                            fontWeight: 'bold',
+                            borderRadius: '4px',
+                            transition: 'background-color 0.3s, color 0.3s, text-decoration 0.3s',
                         },
                         '&:focus': {
-                            outline: 'none', // Remove outline on focus
+                            outline: 'none',
                         },
                     }}
                 >

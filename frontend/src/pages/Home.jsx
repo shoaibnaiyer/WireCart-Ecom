@@ -65,10 +65,10 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // State for Snackbar
-  const [snackbarMessage, setSnackbarMessage] = useState(''); // State for Snackbar message
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // State for Snackbar severity
-  const [userCart, setUserCart] = useState([]); // State to store user's cart items
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [userCart, setUserCart] = useState([]);
 
   useEffect(() => {
     axios.get('http://localhost:3001/products')
@@ -101,7 +101,7 @@ function Home() {
   const addToCart = async (productId) => {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.userId) {
-      setSnackbarSeverity('error'); // Change snackbar severity to error
+      setSnackbarSeverity('error');
       setSnackbarMessage('Please login to continue');
       setSnackbarOpen(true);
       return;
@@ -124,7 +124,7 @@ function Home() {
       const updatedCart = await axios.get(`http://localhost:3001/carts/items/${userData.userId}`);
       setUserCart(updatedCart.data.cartProducts);
 
-      setSnackbarSeverity('success'); // Change snackbar severity back to success
+      setSnackbarSeverity('success');
       setSnackbarMessage('Added to cart');
       setSnackbarOpen(true);
     } catch (error) {
@@ -177,8 +177,6 @@ function Home() {
           ))}
         </Grid>
       </Container>
-
-      {/* Modal for displaying product details */}
       <Dialog
         open={openModal}
         onClose={handleCloseModal}
@@ -235,19 +233,17 @@ function Home() {
           </>
         )}
       </Dialog>
-
-      {/* Snackbar for showing added to cart message */}
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={2000} // Adjust duration as needed
+        autoHideDuration={2000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Position Snackbar at the top center
-        style={{ marginTop: '50px' }} // Adjust marginTop to position the Snackbar below
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        style={{ marginTop: '50px' }}
       >
         <MuiAlert
           elevation={6}
           variant="filled"
-          severity={snackbarSeverity} // Dynamically set severity based on state
+          severity={snackbarSeverity}
           onClose={handleSnackbarClose}
         >
           {snackbarMessage}

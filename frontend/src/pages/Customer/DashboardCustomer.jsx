@@ -1,6 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-unused-vars */
-// import { Container, Row, Col, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
@@ -26,7 +24,6 @@ const DashboardCustomer = () => {
   useEffect(() => {
     async function fetchUserName() {
       try {
-        // Assuming you have the user's ID stored in localStorage or somewhere else
         const userData = JSON.parse(localStorage.getItem('userData'));
         if (!userData || !userData.userId) {
           throw new Error('User ID not found');
@@ -79,7 +76,6 @@ const DashboardCustomer = () => {
 
   return (
     <>
-      {/* <h2 style={{ marginBottom: '50px', marginLeft: '50px', marginTop: '20px',}}>Admin Dashboard</h2> */}
       <Container maxWidth="lg">
         <Typography variant="h3" gutterBottom style={{ marginTop: '20px' }}>
           {loading ? (
