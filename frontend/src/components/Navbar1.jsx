@@ -169,11 +169,11 @@ function Navbar1() {
                                     <Button color="inherit" component={Link} to="/home">
                                         Home
                                     </Button>
-                                    {userData?.userType === 'Customer' && (
-                                        <Button color="inherit" component={Link} to="/customer-dashboard">
-                                            Customer Dashboard
-                                        </Button>
-                                    )}
+                                    {userData?.userType === 'Customer' ? (
+                                <Button color="inherit" component={Link} to="/customer-dashboard">Customer Dashboard</Button>
+                            ) : (
+                                <Button color="inherit" component={Link} to="/admin-dashboard">Admin Dashboard</Button>
+                            )}
                                     <Button color="inherit" onClick={handleSignOut} component={Link} to="/login-customer" startIcon={<ExitToAppIcon />}>
                                         Sign Out
                                     </Button>

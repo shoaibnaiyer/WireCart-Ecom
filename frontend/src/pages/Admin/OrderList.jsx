@@ -102,7 +102,7 @@ function OrderList() {
                 <TableRow style={{ backgroundColor: 'black', color: 'white' }}>
                   <TableCell style={{ color: 'inherit' }}><b>S. No.</b></TableCell>
                   <TableCell style={{ color: 'inherit' }}><b>Order ID</b></TableCell>
-                  <TableCell style={{ color: 'inherit' }}><b>User ID</b></TableCell>
+                  {/* <TableCell style={{ color: 'inherit' }}><b>User ID</b></TableCell> */}
                   <TableCell style={{ color: 'inherit' }}><b>User Name</b></TableCell>
                   <TableCell style={{ color: 'inherit' }}><b>Total Amount</b></TableCell>
                   <TableCell style={{ color: 'inherit' }}><b>Order Date</b></TableCell>
@@ -119,7 +119,7 @@ function OrderList() {
                     <TableRow key={order._id}>
                       <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                       <TableCell>{order._id}</TableCell>
-                      <TableCell>{order.user._id}</TableCell>
+                      {/* <TableCell>{order.user._id}</TableCell> */}
                       <TableCell>{order.user.name}</TableCell>
                       <TableCell>{order.totalAmount}</TableCell>
                       <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
