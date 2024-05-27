@@ -26,6 +26,7 @@ import bodyParser from "body-parser";
 import User from "./models/userModel.js";
 import Product from "./models/productModel.js";
 import Cart from "./models/cartModel.js";
+import Favorites from "./models/favoriteModel.js"
 import Order from "./models/orderModel.js";
 
 const app = express();
@@ -151,7 +152,7 @@ app.delete("/user/:id", async (req, res) => {
   }
 });
 
-// Get Login
+// Login
 app.post("/login", async (req, res) => {
   try {
     const { email, password, role } = req.body;
@@ -269,8 +270,10 @@ app.get('/products', async (req, res) => {
     // Fetch all products
     const products = await Product.find().populate({
       path: 'ratings.userId',
-      select: 'name', // Select only the name field from the user document
+      select: '_id, name', // Select only the name field from the user document
     });
+
+    console.log(products);
 
     // If no products are found, return a 404 status with a message
     if (!products || products.length === 0) {
@@ -288,6 +291,12 @@ app.get('/products', async (req, res) => {
       quantity: product.quantity,
       images: product.images.map(image => `${req.protocol}://${req.get('host')}/images/${image.replace(/\\/g, '/')}`), // Construct image URLs
       ratings: product.ratings,
+      // ratings: product.ratings.map(rating => ({
+      //   userId: rating.userId._id, // Assuming you want to keep the userId as an ObjectId
+      //   userName: rating.userId.name, // User's name from the populated field
+      //   rating: rating.rating,
+      //   review: rating.review
+      // })),
       averageRating: product.averageRating
     }));
 
@@ -299,20 +308,29 @@ app.get('/products', async (req, res) => {
   }
 });
 
-// Post a new rating for a product
+//Add a new review
 app.post("/products/:id/ratings", async (req, res) => {
   try {
+    // Validate the incoming request
+    const { userId, rating, review } = req.body;
+    if (!userId || !rating || typeof rating !== 'number' || rating < 1 || rating > 5 || !review) {
+      return res.status(400).json({ message: "Invalid rating or review" });
+    }
+
+    // Find the product by ID
     const product = await Product.findById(req.params.id);
-    if (product == null) {
+    if (!product) {
       return res.status(404).json({ message: "Cannot find product" });
     }
 
+    // Create the new rating
     const newRating = {
-      userId: req.body.userId,
-      rating: req.body.rating,
-      review: req.body.review,
+      userId: userId,
+      rating: rating,
+      review: review,
     };
 
+    // Add the new rating to the product
     product.ratings.push(newRating);
 
     // Recalculate the average rating
@@ -320,15 +338,55 @@ app.post("/products/:id/ratings", async (req, res) => {
       (total, rating) => total + rating.rating,
       0
     );
-    product.averageRating = totalRatings / product.ratings.length;
+    product.averageRating = Number((totalRatings / product.ratings.length).toFixed(2))
 
+    // Save the product with the new rating
     await product.save();
 
-    res.status(201).json(product);
+    // Populate the user information for the ratings
+    const populatedProduct = await Product.findById(req.params.id).populate({
+      path: 'ratings.userId',
+      select: 'name',
+    });
+
+    // Return the updated product with populated user information
+    res.status(201).json(populatedProduct);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
+
+// // Post a new rating for a product
+// app.post("/products/:id/ratings", async (req, res) => {
+//   try {
+//     const product = await Product.findById(req.params.id);
+//     if (product == null) {
+//       return res.status(404).json({ message: "Cannot find product" });
+//     }
+
+//     const newRating = {
+//       userId: req.body.userId,
+//       rating: req.body.rating,
+//       review: req.body.review,
+//     };
+
+//     product.ratings.push(newRating);
+
+//     // Recalculate the average rating
+//     const totalRatings = product.ratings.reduce(
+//       (total, rating) => total + rating.rating,
+//       0
+//     );
+//     product.averageRating = totalRatings / product.ratings.length;
+
+//     await product.save();
+
+//     res.status(201).json(product);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// });
 
 // Get a specific product
 app.get("/products/product/:id", async (req, res) => {
@@ -633,8 +691,6 @@ app.get("/orders", async (req, res) => {
   }
 });
 
-
-
 // Get a single order by ID for a specific user
 app.get("/users/:userId/orders/:id", async (req, res) => {
   try {
@@ -696,6 +752,83 @@ app.delete("/users/:userId/orders/:id", async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
     res.json({ message: "Order deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add to Favorites
+app.post("/favorites/add-product", async (req, res) => {
+  const { userId, productId } = req.body;
+
+  try {
+    // Find the user's favorites
+    let favorites = await Favorites.findOne({ user: userId });
+
+    if (!favorites) {
+      // If the user doesn't have a favorites list, create a new one with the product
+      favorites = new Favorites({ user: userId, products: [productId] });
+      await favorites.save();
+    } else {
+      // Check if the product already exists in the favorites
+      const existingProduct = favorites.products.find(product => product.equals(productId));
+
+      if (existingProduct) {
+        return res.status(400).json({ message: "Product already in favorites" });
+      } else {
+        // If the product doesn't exist in the favorites, add it
+        favorites.products.push(productId);
+        await favorites.save();
+      }
+    }
+
+    res.status(200).json({ message: "Product added to favorites successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Favorites
+app.get("/favorites/items/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const favorites = await Favorites.findOne({ user: userId }).populate('products');
+
+    if (!favorites) {
+      return res.status(404).json({ message: "Favorites not found" });
+    }
+
+    res.status(200).json({ favoriteProducts: favorites.products });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Remove from Favorites
+app.delete("/favorites/remove-product/:userId/:productId", async (req, res) => {
+  const { userId, productId } = req.params;
+
+  try {
+    // Find the user's favorites
+    const favorites = await Favorites.findOne({ user: userId });
+
+    if (!favorites) {
+      return res.status(404).json({ message: "Favorites not found" });
+    }
+
+    // Find the index of the product in the favorites
+    const productIndex = favorites.products.findIndex(product => product.equals(productId));
+
+    if (productIndex === -1) {
+      return res.status(404).json({ message: "Product not found in the favorites" });
+    }
+
+    // Remove the product from the favorites
+    favorites.products.splice(productIndex, 1);
+    await favorites.save();
+
+    res.status(200).json({ message: "Product removed from favorites successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
