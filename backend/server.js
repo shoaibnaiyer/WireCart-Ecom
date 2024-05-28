@@ -291,12 +291,6 @@ app.get('/products', async (req, res) => {
       quantity: product.quantity,
       images: product.images.map(image => `${req.protocol}://${req.get('host')}/images/${image.replace(/\\/g, '/')}`), // Construct image URLs
       ratings: product.ratings,
-      // ratings: product.ratings.map(rating => ({
-      //   userId: rating.userId._id, // Assuming you want to keep the userId as an ObjectId
-      //   userName: rating.userId.name, // User's name from the populated field
-      //   rating: rating.rating,
-      //   review: rating.review
-      // })),
       averageRating: product.averageRating
     }));
 
@@ -356,37 +350,6 @@ app.post("/products/:id/ratings", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
-// // Post a new rating for a product
-// app.post("/products/:id/ratings", async (req, res) => {
-//   try {
-//     const product = await Product.findById(req.params.id);
-//     if (product == null) {
-//       return res.status(404).json({ message: "Cannot find product" });
-//     }
-
-//     const newRating = {
-//       userId: req.body.userId,
-//       rating: req.body.rating,
-//       review: req.body.review,
-//     };
-
-//     product.ratings.push(newRating);
-
-//     // Recalculate the average rating
-//     const totalRatings = product.ratings.reduce(
-//       (total, rating) => total + rating.rating,
-//       0
-//     );
-//     product.averageRating = totalRatings / product.ratings.length;
-
-//     await product.save();
-
-//     res.status(201).json(product);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// });
 
 // Get a specific product
 app.get("/products/product/:id", async (req, res) => {
